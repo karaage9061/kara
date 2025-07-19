@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPI言語クイズ - 熟語・語句対策</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .home-screen {
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .question-count-selector {
+            margin: 30px 0;
+        }
+
+        .count-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .count-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .count-btn:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+
+        .custom-input {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .custom-input input {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 80px;
+            text-align: center;
+        }
+
+        .start-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .quiz-screen {
+            display: none;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #4299e1;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .question-counter {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            color: #2d3748;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .choice-btn {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .choice-btn:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .choice-btn.correct {
+            background: #c6f6d5;
+            border-color: #68d391;
+            color: #22543d;
+        }
+
+        .choice-btn.incorrect {
+            background: #fed7d7;
+            border-color: #fc8181;
+            color: #742a2a;
+        }
+
+        .choice-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .result-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .result-display.correct {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .result-display.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .explanation {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #4299e1;
+        }
+
+        .explanation h3 {
+            color: #2b6cb0;
+            margin-bottom: 10px;
+        }
+
+        .next-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1rem;
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .score-display {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e9ecef;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .action-btn.retry {
+            background: #ed8936;
+        }
+
+        .action-btn.home {
+            background: #48bb78;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .quiz-card {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+            
+            .count-options {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ホーム画面 -->
+        <div id="home-screen" class="quiz-card home-screen">
+            <h1>📚 SPI言語クイズ</h1>
+            <p class="subtitle">熟語・語句対策（全286問収録）</p>
+            
+            <div class="question-count-selector">
+                <h3>問題数を選択してください</h3>
+                <div class="count-options">
+                    <button class="count-btn" onclick="selectCount(10)">10問</button>
+                    <button class="count-btn" onclick="selectCount(20)">20問</button>
+                    <button class="count-btn" onclick="selectCount(30)">30問</button>
+                    <button class="count-btn" onclick="selectCount(50)">50問</button>
+                </div>
+                
+                <div class="custom-input">
+                    <span>カスタム:</span>
+                    <input type="number" id="custom-count" min="1" max="286" placeholder="問題数">
+                    <button class="count-btn" onclick="selectCustomCount()">設定</button>
+                </div>
+            </div>
+            
+            <button id="start-btn" class="start-btn" onclick="startQuiz()" disabled>
+                クイズを開始する
+            </button>
+        </div>
+
+        <!-- クイズ画面 -->
+        <div id="quiz-screen" class="quiz-card quiz-screen">
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+            </div>
+            
+            <div id="question-counter" class="question-counter"></div>
+            
+            <div id="question-text" class="question-text"></div>
+            
+            <div id="choices" class="choices"></div>
+            
+            <div id="result-display" class="result-display hidden"></div>
+            
+            <div id="explanation" class="explanation hidden"></div>
+            
+            <button id="next-btn" class="next-btn hidden" onclick="nextQuestion()">
+                次の問題へ
+            </button>
+        </div>
+
+        <!-- 結果画面 -->
+        <div id="result-screen" class="quiz-card result-screen">
+            <h1>🎉 クイズ完了！</h1>
+            
+            <div class="score-display">
+                <div>正解数</div>
+                <div id="score-number" class="score-number"></div>
+                <div id="score-percentage"></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn home" onclick="goHome()">
+                    ホームに戻る
+                </button>
+                <button id="retry-btn" class="action-btn retry" onclick="retryIncorrect()">
+                    間違えた問題を復習
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 問題データ
+        const quizData = [
+            {
+                question: "自由勝手にはねまわること",
+                choices: ["飛翔", "跳躍", "躍動", "跳梁", "躍如"],
+                correct: 3,
+                explanation: "跳梁: 悪者などが勢いよく、のさばり回ること"
+            },
+            {
+                question: "自分の信ずるところを遠慮せずにいうこと",
+                choices: ["直言", "進言", "忠言", "放言", "断言"],
+                correct: 0,
+                explanation: "直言: 思うところを遠慮なく、率直に言うこと"
+            },
+            {
+                question: "きわだって他より優れていること",
+                choices: ["隔絶", "出色", "優越", "破格", "筆頭"],
+                correct: 1,
+                explanation: "出色: 他よりも際立って優れていること"
+            },
+            {
+                question: "衰えたり栄えたりすること",
+                choices: ["消長", "進退", "断続", "変遷", "流転"],
+                correct: 0,
+                explanation: "消長: 勢いが衰えたり盛んになったりすること"
+            },
+            {
+                question: "以前からの願い",
+                choices: ["切願", "宿願", "懇願", "悲願", "念願"],
+                correct: 1,
+                explanation: "宿願: 以前から抱いている願い"
+            },
+            {
+                question: "卑近の意味として正しいものは",
+                choices: ["身近な", "卑しい", "低俗な", "低級な", "当今の"],
+                correct: 0,
+                explanation: "卑近: 身近で平凡なこと"
+            },
+            {
+                question: "他人を威嚇するような態度",
+                choices: ["横柄", "尊大", "居丈高", "鉄仮面", "威風堂々"],
+                correct: 2,
+                explanation: "居丈高: 威圧的で高圧的な態度"
+            },
+            {
+                question: "思わず笑うこと",
+                choices: ["苦笑", "哄笑", "一笑", "失笑", "嘲笑"],
+                correct: 3,
+                explanation: "失笑: 思わず吹き出して笑うこと"
+            },
+            {
+                question: "物がゆらゆらゆれる",
+                choices: ["なびく", "ぶれる", "ふるえる", "たゆたう", "はためく"],
+                correct: 3,
+                explanation: "たゆたう: ゆらゆらと漂うこと"
+            },
+            {
+                question: "経験を積んで人柄などが円熟すること",
+                choices: ["老練", "晩成", "成熟", "老成", "大成"],
+                correct: 3,
+                explanation: "老成: 経験を積んで人格が円熟すること"
+            },
+            {
+                question: "二つの事柄がぴったりと一致すること",
+                choices: ["符号", "合同", "適合", "合一", "照合"],
+                correct: 0,
+                explanation: "符号: 二つの事柄がぴったりと一致すること"
+            },
+            {
+                question: "ものごとの詳しい事情",
+                choices: ["子細", "明細", "精細", "細部", "細事"],
+                correct: 0,
+                explanation: "子細: ものごとの詳しい事情"
+            },
+            {
+                question: "何もしないで傍観している",
+                choices: ["腰をすえる", "口をぬぐう", "目をつぶる", "足をとめる", "手をこまねく"],
+                correct: 4,
+                explanation: "手をこまねく: 何もしないで傍観すること"
+            },
+            {
+                question: "直接は言葉に表さないところ",
+                choices: ["本心", "無言", "他意", "余念", "言外"],
+                correct: 4,
+                explanation: "言外: 言葉には直接表れていない意味"
+            },
+            {
+                question: "やり方などを受け継ぎ、したがうこと",
+                choices: ["因習", "慣例", "伝承", "踏襲", "伝統"],
+                correct: 3,
+                explanation: "踏襲: 前例に従うこと"
+            },
+            {
+                question: "どうにもならないことを残念がる",
+                choices: ["気に病む", "ほぞをかむ", "胸を痛める", "腕をこまねく", "こうべをたれる"],
+                correct: 1,
+                explanation: "ほぞをかむ: 後悔すること"
+            },
+            {
+                question: "心がきたなく、いやしい",
+                choices: ["がめつい", "さもしい", "あくどい", "はしたない", "意地きたない"],
+                correct: 1,
+                explanation: "さもしい: 心がきたなく、いやしい"
+            },
+            {
+                question: "不行き届きでけしからぬこと",
+                choices: ["不倫", "不義", "不埒", "不実", "不徳"],
+                correct: 2,
+                explanation: "不埒: 道理に外れていること"
+            },
+            {
+                question: "当を得たことば",
+                choices: ["金言", "巧言", "至言", "名言", "格言"],
+                correct: 2,
+                explanation: "至言: 当を得た言葉"
+            },
+            {
+                question: "言葉を加えたり言いかえたりして分かりやすく説明すること",
+                choices: ["啓発", "喧伝", "示唆", "指南", "敷衍"],
+                correct: 4,
+                explanation: "敷衍: 詳しく説明すること"
+            },
+            {
+                question: "並外れて程度を超えること",
+                choices: ["希代", "莫大", "絶大", "奇抜", "法外"],
+                correct: 4,
+                explanation: "法外: 常識を超えていること"
+            },
+            {
+                question: "しかたがないと思って受ける",
+                choices: ["たえる", "あまんずる", "へりくだる", "もてあます", "ひらきなおる"],
+                correct: 1,
+                explanation: "あまんずる: 仕方なく受け入れること"
+            },
+            {
+                question: "物事が進行しておもしろくなったところ",
+                choices: ["頂点", "佳境", "要所", "醍醐味", "正念場"],
+                correct: 1,
+                explanation: "佳境: 最も面白い場面"
+            },
+            {
+                question: "問題とされながらまだ解決がつかない事柄",
+                choices: ["保留", "懸案", "未決", "難問", "棚上げ"],
+                correct: 1,
+                explanation: "懸案: 未解決の問題"
+            },
+            {
+                question: "詭弁の意味として正しいものは",
+                choices: ["おどし", "こじつけ", "いいわけ", "まけおしみ", "いいのがれ"],
+                correct: 1,
+                explanation: "詭弁: 一見正しそうに見える偽りの論理"
+            },
+            {
+                question: "心をいためなやますこと",
+                choices: ["腐心", "疑心", "逆心", "虚心", "執心"],
+                correct: 0,
+                explanation: "腐心: 心を悩ますこと"
+            },
+            {
+                question: "ためらわずに思い切ってするさま",
+                choices: ["果断", "愚直", "短慮", "無謀", "勇敢"],
+                correct: 0,
+                explanation: "果断: 思い切りがよいこと"
+            },
+            {
+                question: "ねらいを定めること",
+                choices: ["目星", "目標", "標的", "見当", "照準"],
+                correct: 4,
+                explanation: "照準: 狙いを定めること"
+            },
+            {
+                question: "おしはかること、思いやること",
+                choices: ["推考", "類推", "推論", "推察", "推定"],
+                correct: 3,
+                explanation: "推察: 推し量ること"
+            },
+            {
+                question: "巧みでないこと",
+                choices: ["つたない", "ぎこちない", "たわいない", "ふがいない", "おぼつかない"],
+                correct: 0,
+                explanation: "つたない: 巧みでないこと"
+            },
+            {
+                question: "他の意見に反対して論じ返すこと",
+                choices: ["口論", "反発", "反駁", "論争", "論破"],
+                correct: 2,
+                explanation: "反駁: 反論すること"
+            },
+            {
+                question: "そのことだけにかかわって、他をおろそかにする",
+                choices: ["ひたる", "かまける", "いそしむ", "かかりきる", "なおざりにする"],
+                correct: 1,
+                explanation: "かまける: 熱中して他を怠ること"
+            },
+            {
+                question: "他人の権利を傷つけたり、社会秩序を乱したりする",
+                choices: ["威圧する", "愚弄する", "蹂躙する", "席巻する", "籠絡する"],
+                correct: 2,
+                explanation: "蹂躙: 踏みにじること"
+            },
+            {
+                question: "境遇に満足しているさまを言動に表すこと",
+                choices: ["至福", "闊達", "満喫", "謳歌", "有頂天"],
+                correct: 3,
+                explanation: "謳歌: 声高らかに歌うように表現すること"
+            },
+            {
+                question: "何もせずぶらぶらしていること",
+                choices: ["安穏", "怠惰", "無精", "無為", "悠長"],
+                correct: 3,
+                explanation: "無為: 何もしないこと"
+            },
+            {
+                question: "立派に見せようとしてうわべを飾ること",
+                choices: ["装飾", "粉飾", "彩飾", "見栄", "上塗り"],
+                correct: 1,
+                explanation: "粉飾: 表面を美しく飾ること"
+            },
+            {
+                question: "好ましくないとして拒み退けること",
+                choices: ["意気", "邪険", "敬遠", "疎外", "排斥"],
+                correct: 4,
+                explanation: "排斥: 押しのけて退けること"
+            },
+            {
+                question: "一時しのぎにとりつくろっておくこと",
+                choices: ["虚勢", "見栄", "糊塗", "虚飾", "上塗り"],
+                correct: 2,
+                explanation: "糊塗: 一時的にごまかすこと"
+            },
+            {
+                question: "個人の判断で処理すること",
+                choices: ["専横", "私見", "裁量", "独断", "英断"],
+                correct: 2,
+                explanation: "裁量: 自分の判断で処理すること"
+            },
+            {
+                question: "あわてずゆっくりと事を始めるさま",
+                choices: ["ようやく", "おいおいに", "おっとりと", "おもむろに", "じっくりと"],
+                correct: 3,
+                explanation: "おもむろに: ゆっくりと動作を始めるさま"
+            },
+            {
+                question: "なりふりかまわず懸命に事にあたっている様子",
+                choices: ["けなげ", "ひたむき", "やみくも", "おおわらわ", "てんてこまい"],
+                correct: 3,
+                explanation: "おおわらわ: 大騒ぎをするさま"
+            },
+            {
+                question: "あいまいな所がないように細かく気を配って丁念なこと",
+                choices: ["克明", "周到", "精巧", "繊細", "緻密"],
+                correct: 0,
+                explanation: "克明: 詳しく明らかなこと"
+            },
+            {
+                question: "人を威圧するような態度",
+                choices: ["横柄", "尊大", "居丈高", "鉄面皮", "威風堂々"],
+                correct: 2,
+                explanation: "居丈高: 威圧的で高圧的な態度"
+            },
+            {
+                question: "殊勝な心がけの持ち主だ",
+                choices: ["健気な", "可憐な", "優雅な", "利口な", "堅実な"],
+                correct: 0,
+                explanation: "健気: けなげな、立派な心がけの"
+            },
+            {
+                question: "わがままで好き勝手に振る舞うこと",
+                choices: ["厚顔", "傲慢", "専横", "独断", "不遜"],
+                correct: 2,
+                explanation: "専横: わがまま勝手に振る舞うこと"
+            },
+            {
+                question: "細かく丹念な記録",
+                choices: ["克明な", "周到な", "精密な", "繊細な", "肝要な"],
+                correct: 0,
+                explanation: "克明: 詳しく明らかなこと"
+            },
+            {
+                question: "つつみかくさないさま",
+                choices: ["露呈", "暴露", "あけすけ", "あか抜け", "つつ抜け"],
+                correct: 2,
+                explanation: "あけすけ: 包み隠さず、率直なさま"
+            },
+            {
+                question: "ある学問・技術について広く深い知識と理解を持っていること",
+                choices: ["英知", "奥義", "造詣", "含蓄", "高尚"],
+                correct: 2,
+                explanation: "造詣: 学問・技芸に深く通じていること"
+            },
+            {
+                question: "そうするよりほかにない",
+                choices: ["申し分ない", "ほかならない", "さしさわりない", "よんどころない", "抜き差しならない"],
+                correct: 3,
+                explanation: "よんどころない: やむを得ない、仕方がない"
+            },
+            {
+                question: "仲が悪くにらみ合うこと",
+                choices: ["敵視", "敵対", "反抗", "反目", "背反"],
+                correct: 3,
+                explanation: "反目: 仲が悪くにらみ合うこと"
+            },
+            {
+                question: "だんだんいい気になって人を見下したふるまいをすること",
+                choices: ["虚勢", "誇示", "自負", "増長", "不遜"],
+                correct: 3,
+                explanation: "増長: だんだん調子に乗って思い上がること"
+            }
+        ];
+
+        // アプリの状態
+        let selectedQuestionCount = 0;
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let incorrectQuestions = [];
+        let userAnswers = [];
+
+        // 問題数選択
+        function selectCount(count) {
+            selectedQuestionCount = count;
+            document.getElementById('custom-count').value = '';
+            updateStartButton();
+        }
+
+        function selectCustomCount() {
+            const customInput = document.getElementById('custom-count');
+            const count = parseInt(customInput.value);
+            if (count >= 1 && count <= 286) {
+                selectedQuestionCount = count;
+                updateStartButton();
+            } else {
+                alert('1から286の間で入力してください');
+            }
+        }
+
+        function updateStartButton() {
+            const startBtn = document.getElementById('start-btn');
+            if (selectedQuestionCount > 0) {
+                startBtn.disabled = false;
+                startBtn.textContent = `${selectedQuestionCount}問でスタート`;
+            } else {
+                startBtn.disabled = true;
+                startBtn.textContent = 'クイズを開始する';
+            }
+        }
+
+        // クイズ開始
+        function startQuiz() {
+            if (selectedQuestionCount === 0) return;
+
+            // 問題をランダムに選択
+            const shuffled = [...quizData].sort(() => 0.5 - Math.random());
+            currentQuestions = shuffled.slice(0, Math.min(selectedQuestionCount, quizData.length));
+            
+            // 状態リセット
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            incorrectQuestions = [];
+            userAnswers = [];
+
+            // 画面切り替え
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            document.getElementById('result-screen').style.display = 'none';
+
+            showQuestion();
+        }
+
+        // 問題表示
+        function showQuestion() {
+            const question = currentQuestions[currentQuestionIndex];
+            
+            // プログレスバー更新
+            const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            
+            // 問題番号表示
+            document.getElementById('question-counter').textContent = 
+                `問題 ${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+            
+            // 問題文表示
+            document.getElementById('question-text').textContent = question.question;
+            
+            // 選択肢表示
+            const choicesContainer = document.getElementById('choices');
+            choicesContainer.innerHTML = '';
+            
+            question.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn';
+                button.textContent = `${String.fromCharCode(65 + index)}. ${choice}`;
+                button.onclick = () => selectAnswer(index);
+                choicesContainer.appendChild(button);
+            });
+            
+            // 結果表示をリセット
+            document.getElementById('result-display').className = 'result-display hidden';
+            document.getElementById('explanation').className = 'explanation hidden';
+            document.getElementById('next-btn').className = 'next-btn hidden';
+        }
+
+        // 回答選択
+        function selectAnswer(selectedIndex) {
+            const question = currentQuestions[currentQuestionIndex];
+            const choices = document.querySelectorAll('.choice-btn');
+            const resultDisplay = document.getElementById('result-display');
+            const explanation = document.getElementById('explanation');
+            const nextBtn = document.getElementById('next-btn');
+            
+            // すべての選択肢を無効化
+            choices.forEach(btn => btn.classList.add('disabled'));
+            
+            // 正解の選択肢をハイライト
+            choices[question.correct].classList.add('correct');
+            
+            // 選択された回答の処理
+            if (selectedIndex === question.correct) {
+                // 正解の場合
+                correctAnswers++;
+                resultDisplay.textContent = '✅ 正解！';
+                resultDisplay.className = 'result-display correct';
+            } else {
+                // 不正解の場合
+                choices[selectedIndex].classList.add('incorrect');
+                resultDisplay.textContent = '❌ 不正解';
+                resultDisplay.className = 'result-display incorrect';
+                incorrectQuestions.push({
+                    ...question,
+                    userAnswer: selectedIndex
+                });
+            }
+            
+            // 回答を記録
+            userAnswers.push({
+                questionIndex: currentQuestionIndex,
+                userAnswer: selectedIndex,
+                correct: selectedIndex === question.correct
+            });
+            
+            // 解説表示
+            explanation.innerHTML = `
+                <h3>📖 解説</h3>
+                <p><strong>${question.choices[question.correct]}</strong>: ${question.explanation}</p>
+            `;
+            explanation.className = 'explanation';
+            
+            // 次へボタン表示
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                nextBtn.textContent = '次の問題へ';
+            } else {
+                nextBtn.textContent = '結果を見る';
+            }
+            nextBtn.className = 'next-btn';
+        }
+
+        // 次の問題へ
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < currentQuestions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // 結果表示
+        function showResults() {
+            const scorePercentage = Math.round((correctAnswers / currentQuestions.length) * 100);
+            
+            // 画面切り替え
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            
+            // スコア表示
+            document.getElementById('score-number').textContent = 
+                `${correctAnswers} / ${currentQuestions.length}`;
+            document.getElementById('score-percentage').textContent = 
+                `正解率: ${scorePercentage}%`;
+            
+            // 復習ボタンの表示制御
+            const retryBtn = document.getElementById('retry-btn');
+            if (incorrectQuestions.length > 0) {
+                retryBtn.style.display = 'block';
+                retryBtn.textContent = `間違えた問題を復習 (${incorrectQuestions.length}問)`;
+            } else {
+                retryBtn.style.display = 'none';
+            }
+        }
+
+        // ホームに戻る
+        function goHome() {
+            document.getElementById('home-screen').style.display = 'block';
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            
+            // 状態リセット
+            selectedQuestionCount = 0;
+            updateStartButton();
+        }
+
+        // 間違えた問題を復習
+        function retryIncorrect() {
+            if (incorrectQuestions.length === 0) return;
+            
+            // 間違えた問題でクイズを再開
+            currentQuestions = [...incorrectQuestions];
+            selectedQuestionCount = currentQuestions.length;
+            
+            // 状態リセット
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            incorrectQuestions = [];
+            userAnswers = [];
+            
+            // クイズ画面に切り替え
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            
+            showQuestion();
+        }
+
+        // カスタム入力でEnterキー対応
+        document.getElementById('custom-count').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                selectCustomCount();
+            }
+        });
+
+        // 初期化
+        updateStartButton();
